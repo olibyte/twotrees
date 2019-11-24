@@ -1,0 +1,115 @@
+namespace org.twotrees.safety
+
+/**
+ * Simple street address
+ */
+concept Address {
+  o String city optional
+  o String country
+  o String state optional
+  o String street optional
+  o String zip optional
+}
+
+/**
+ * An abstract participant type in this business network
+ */
+abstract participant Partner identified by email {
+  o String email
+  o Address address
+}
+
+participant OliveGrowers extends Partner {
+}
+
+participant OilProducer extends Partner {
+}
+
+participant Bottler extends Partner {
+}
+
+enum OilType {
+  o ORGANIC_DELICATE_EXTRA_VIRGIN
+  o ORGANIC_VIRGIN
+  o ORGANIC_EXTRA_VIRGIN
+  o DELICATE_EXTRA_VIRGIN
+  o EXTRA_VIRGIN
+  o VIRGIN
+  o BEAUTY
+  o REJECTED
+}
+
+enum CultivationProcess {
+  o HANDPICKED
+  o MECHANICAL
+}
+
+enum PressingMethod {
+  o MILLED
+  o COLD_EXTRACTION
+  o STEEL_DRUMS
+}
+
+enum Pesticides {
+  o NATURAL_TOXINS
+  o NONE
+  o CHEMICALS
+}
+
+enum ContaminationType {
+  o SEWAGE
+  o FLOOD
+  o ANIMALS
+  o NONE
+}
+
+asset Cultivation identified by cultivationId {
+  o String cultivationId
+  o CultivationProcess process 
+  o Pesticides pesticideType
+  o DateTime pickingDate
+  o Address originAddress
+  o String[] soilReadings optional
+  o String[] pesticideReadings optional
+  --> OliveGrowers grower
+}
+
+asset Production identified by productionId {
+  o String productionId
+  o PressingMethod method
+  o Integer[] acidityReadings optional
+  o DateTime crushingDate
+  o DateTime storedDate
+  --> OilProducer producer
+}
+
+asset Grade identified by gradeId {
+  o String gradeId
+  o DateTime bottledDate
+  o OilType oilGrade
+  --> Bottler bottler
+}
+
+abstract transaction OilCreationTransaction {
+  --> Production production
+  --> Cultivation cultivation
+}
+
+transaction SoilReading extends OilCreationTransaction {
+  o ContaminationType soilContaminant
+}
+
+transaction PesticidesReading extends OilCreationTransaction {
+  o Pesticides pesticideType
+}
+
+transaction AcidityReading extends OilCreationTransaction {
+  o Integer acidityPercentage
+}
+
+transaction Bottling extends OilCreationTransaction {
+}
+
+transaction SetupDemo extends OilCreationTransaction {
+}
+
